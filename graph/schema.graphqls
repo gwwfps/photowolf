@@ -1,0 +1,35 @@
+type Photo {
+  name: String!
+  notes: String
+  tags: [String!]!
+  updated: Int!
+}
+
+type Query {
+  photos: [Photo!]!
+}
+
+input DownloadPhotoInput {
+  url: String!
+}
+
+input UploadPhotoInput {
+  b64data: String!
+}
+
+input TagPhotoInput {
+  name: String!
+  tag: String!
+}
+
+input AddNotesInput {
+  name: String!
+  notes: String!
+}
+
+type Mutation {
+  uploadPhotoInput(input: UploadPhotoInput!): Photo!
+  downloadPhotoInput(input: DownloadPhotoInput!): Photo!
+  tagPhoto(input: TagPhotoInput!): Photo!
+  addNotes(input: AddNotesInput!): Photo!
+}
