@@ -63,5 +63,9 @@ func main() {
 	}
 
 	log.Printf("starting server on %s", c.Port)
-	log.Fatal(fasthttp.ListenAndServe(":"+c.Port, h))
+	s := &fasthttp.Server{
+		Handler:            h,
+		MaxRequestBodySize: 50000000,
+	}
+	log.Fatal(s.ListenAndServe(":" + c.Port))
 }
