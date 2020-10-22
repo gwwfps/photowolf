@@ -72,10 +72,8 @@ const send = ({ linkUrl, pageUrl, srcUrl }) => {
   }
 };
 
-chrome.runtime.onInstalled.addListener(function () {
-  chrome.contextMenus.create({
-    title: "Send to Photowolf",
-    contexts: ["image", "link"],
-    onclick: send,
-  });
+chrome.contextMenus.create({
+  title: "Send to Photowolf",
+  contexts: ["image", "link"],
+  onclick: send,
 });

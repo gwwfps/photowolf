@@ -30,7 +30,8 @@ func main() {
 	}
 
 	staticFs := &fasthttp.FS{
-		Root: "./static",
+		Root:       "./static",
+		IndexNames: []string{"index.html"},
 	}
 	static := staticFs.NewRequestHandler()
 	if c.WebPort != "" {
