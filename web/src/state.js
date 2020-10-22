@@ -200,9 +200,9 @@ export const addFilterTagSelector = selector({
     const filterTags = get(filterTagsState);
     const filterMethod = get(filterMethodState);
     if (filterMethod === FILTER_METHOD_ALL) {
-      return;
-    }
-    if (filterMethod === FILTER_METHOD_ONE) {
+      set(filterMethodState, FILTER_METHOD_ONE);
+      set(filterTagsState, [tag]);
+    } else if (filterMethod === FILTER_METHOD_ONE) {
       set(filterTagsState, filterTags.includes(tag) ? [] : [tag]);
     } else {
       set(filterTagsState, xor(filterTags, [tag]).sort());
