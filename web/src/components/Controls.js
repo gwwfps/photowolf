@@ -1,7 +1,7 @@
 import React from 'react';
 
 export default ({ children }) => (
-  <div className="fixed inset-x-0 bottom-0 flex justify-center m-3">
+  <div className="flex w-1/2 m-5 p-5 rounded-lg shadow bg-gray-100">
     {children}
   </div>
 );

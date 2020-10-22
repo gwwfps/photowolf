@@ -3,8 +3,10 @@ import Magnifier from 'react-magnifier';
 import ColorThief from 'colorthief';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useHistory } from 'react-router-dom';
+import { useRecoilState } from 'recoil';
 
 import useWindowSize from '../hooks/use-window-size';
+import { magActiveState, zoomFactorState } from '../state';
 
 const colorThief = new ColorThief();
 
@@ -39,7 +41,7 @@ export default ({ photo: { name } }) => {
     {},
     [history]
   );
-  const [magActive, setMagActive] = useState(false);
+  const [magActive, setMagActive] = useRecoilState(magActiveState);
   useHotkeys(
     'm',
     () => {
@@ -56,7 +58,7 @@ export default ({ photo: { name } }) => {
     height: h.toFixed(),
   };
 
-  const [zoomFactor, setZoomFactor] = useState(0.5);
+  const [zoomFactor, setZoomFactor] = useRecoilState(zoomFactorState);
   const onWheel = useCallback(
     ({ deltaY }) => {
       if (!magActive) {
@@ -72,7 +74,7 @@ export default ({ photo: { name } }) => {
     [magActive, zoomFactor]
   );
 
-  const magSize = Math.ceil(Math.max(imgW, imgH) / 1.5);
+  const magSize = Math.ceil(Math.max(w, h) / 2);
 
   const magnifierAttrs = {
     src: url,
@@ -93,7 +95,7 @@ export default ({ photo: { name } }) => {
       }}
     >
       <div className="flex justify-center">
-        {magActive && imgW * 2 < winW ? <img {...imgAttrs} /> : false}
+        {magActive && w * 2 < winW ? <img {...imgAttrs} /> : false}
         {magActive ? <Magnifier {...magnifierAttrs} /> : <img {...imgAttrs} />}
       </div>
     </div>

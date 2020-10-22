@@ -1,6 +1,7 @@
 package gallery
 
 import (
+	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
 	"github.com/pkg/errors"
@@ -66,8 +67,13 @@ func (g *Gallery) saveFile(data []byte) (*ImageFile, error) {
 		return nil, fmt.Errorf("unsupported image mime type %s", mime)
 	}
 
-	name := fmt.Sprintf("%d.%s", time.Now().UnixNano(), ext)
-	err := ioutil.WriteFile(filepath.Join(g.imgDir, name), data, 0666)
+	hash := sha256.New()
+	_, err := hash.Write(data)
+	if err != nil {
+		return nil, errors.WithMessage(err, "cannot hash data for file name")
+	}
+	name := fmt.Sprintf("%x.%s", hash.Sum(nil), ext)
+	err = ioutil.WriteFile(filepath.Join(g.imgDir, name), data, 0666)
 	if err != nil {
 		return nil, errors.WithMessage(err, "cannot save file")
 	}

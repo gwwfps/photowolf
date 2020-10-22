@@ -5,6 +5,7 @@ import { useRouteMatch } from 'react-router-dom';
 import Gallery from './Gallery';
 import Photo from './Photo';
 import Preloader from './Preloader';
+import { useLocalStoragePersistenceObserver } from '../state';
 
 const PHOTOS_QUERY = gql`
   query Photos {
@@ -18,7 +19,10 @@ const PHOTOS_QUERY = gql`
 `;
 
 export default () => {
-  const { loading, error, data } = useQuery(PHOTOS_QUERY);
+  const { loading, error, data } = useQuery(PHOTOS_QUERY, {
+    pollInterval: 60000,
+  });
+  useLocalStoragePersistenceObserver();
 
   if (loading) {
     return <p>Loading...</p>;

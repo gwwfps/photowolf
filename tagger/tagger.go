@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -41,6 +42,7 @@ func (t *Tagger) Start() {
 }
 
 func (t *Tagger) TagImage(img, tag string) ImageTags {
+	tag = strings.ToLower(tag)
 	imageTags := t.images[img]
 
 	exists := false
