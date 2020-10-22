@@ -129,7 +129,10 @@ export const galleryDisplayFilterSelector = selector({
     const filterTags = get(filterTagsState);
 
     return reverse(
-      sortBy(photos, ({ updated }) => updated).map((photo, i) => ({
+      sortBy(
+        photos.filter(({ deleted }) => !deleted),
+        ({ updated }) => updated
+      ).map((photo, i) => ({
         ...photo,
         num: i + 1,
       }))
@@ -156,6 +159,9 @@ export const taggingDisplayedState = atom({
 export const toggleTaggingSelector = selector({
   key: 'toggleTaggingSelector',
   set: ({ set, get }) => {
+    if (get(deletionModeState)) {
+      return;
+    }
     set(taggingDisplayedState, !get(taggingDisplayedState));
     set(filteringDisplayedState, false);
   },
@@ -174,6 +180,9 @@ export const filteringDisplayedState = atom({
 export const toggleFilteringSelector = selector({
   key: 'toggleFilteringSelector',
   set: ({ set, get }) => {
+    if (get(deletionModeState)) {
+      return;
+    }
     set(filteringDisplayedState, !get(filteringDisplayedState));
     set(taggingDisplayedState, false);
   },
@@ -225,6 +234,21 @@ export const filterMethodSelector = selector({
         set(filterTagsState, [filterTags[0]]);
       }
     }
+  },
+});
+
+export const deletionModeState = atom({
+  key: 'deletionMode',
+  default: false,
+});
+
+export const toggleDeletionModeSelector = selector({
+  key: 'toggleDeletionModeSelector',
+  set: ({ set, get }) => {
+    if (get(filteringDisplayedState) || get(taggingDisplayedState)) {
+      return;
+    }
+    set(deletionModeState, !get(deletionModeState));
   },
 });
 

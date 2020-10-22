@@ -17,8 +17,7 @@ const Inner = ({ className, text, underline }) => {
           `bg-${color}-200`,
         ],
         {
-          'border-b-4': underline,
-          [`border-${color}-300`]: underline,
+          [`border-b-4 border-${color}-300`]: underline,
         },
         className
       )}

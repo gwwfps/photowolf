@@ -45,17 +45,19 @@ func (t *Tagger) TagImage(img, tag string) ImageTags {
 	tag = strings.ToLower(tag)
 	imageTags := t.images[img]
 
-	exists := false
-	for _, tg := range imageTags.Tags {
+	index := -1
+	for i, tg := range imageTags.Tags {
 		if tg == tag {
-			exists = true
+			index = i
 			break
 		}
 	}
-	if !exists {
+	if index == -1 {
 		imageTags.Tags = append(imageTags.Tags, tag)
-		t.images[img] = imageTags
+	} else {
+		imageTags.Tags = append(imageTags.Tags[:index], imageTags.Tags[index+1:]...)
 	}
+	t.images[img] = imageTags
 
 	return imageTags
 }

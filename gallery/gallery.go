@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -77,6 +78,7 @@ func (g *Gallery) saveFile(data []byte) (*ImageFile, error) {
 		return nil, errors.WithMessage(err, "cannot save file")
 	}
 
+	log.Printf("saved file %s", name)
 	return &ImageFile{
 		Name:    name,
 		Updated: int(time.Now().Unix()),
@@ -113,4 +115,8 @@ func (g *Gallery) UploadPhoto(b64 string) (*ImageFile, error) {
 	}
 
 	return g.saveFile(data)
+}
+
+func (g *Gallery) DeletePhoto(name string) error {
+	return os.Remove(filepath.Join(g.imgDir, name))
 }

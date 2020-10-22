@@ -11,6 +11,9 @@ const doGqlReq = (query, variables) =>
   })
     .then((response) => response.json())
     .then((data) => {
+      if (data.errors) {
+        console.error("GQL errors:", data.errors);
+      }
       console.log("Query success:", data);
     })
     .catch((error) => {

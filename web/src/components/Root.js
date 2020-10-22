@@ -14,6 +14,7 @@ const PHOTOS_QUERY = gql`
       notes
       tags
       updated
+      deleted
     }
   }
 `;

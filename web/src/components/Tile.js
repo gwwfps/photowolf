@@ -1,7 +1,8 @@
 import React, { useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
-import { useRecoilState } from 'recoil';
+import { useRecoilValue } from 'recoil';
 import { gql, useMutation } from '@apollo/client';
+import cx from 'classnames';
 
 import Button from './Button';
 import Tag from './Tag';
@@ -16,13 +17,31 @@ const TAG_PHOTO = gql`
   }
 `;
 
-export default ({ photo: { name, num, tags }, width, height, tagging }) => {
+const DELETE_PHOTO = gql`
+  mutation DeletePhoto($input: DeletePhotoInput!) {
+    deletePhoto(input: $input) {
+      name
+      deleted
+    }
+  }
+`;
+
+export default ({
+  photo: { name, num, tags },
+  width,
+  height,
+  tagging,
+  deleting,
+}) => {
   const history = useHistory();
   const viewImage = useCallback(() => {
     history.push(`/view/${name}`);
   }, [name, history]);
-  const [taggingSelection] = useRecoilState(taggingSelectionState);
-  const [tagPhoto, { data }] = useMutation(TAG_PHOTO);
+
+  const taggingSelection = useRecoilValue(taggingSelectionState);
+
+  const [tagPhoto] = useMutation(TAG_PHOTO);
+  const [deletePhoto] = useMutation(DELETE_PHOTO);
 
   const tagImage = useCallback(() => {
     if (!taggingSelection) {
@@ -36,7 +55,33 @@ export default ({ photo: { name, num, tags }, width, height, tagging }) => {
         },
       },
     });
-  }, [taggingSelection]);
+  }, [name, taggingSelection]);
+  const deleteImage = useCallback(() => {
+    deletePhoto({
+      variables: {
+        input: {
+          name,
+        },
+      },
+    });
+  }, [name]);
+
+  const handleClick = useCallback(() => {
+    if (tagging) {
+      tagImage();
+    } else if (deleting) {
+      deleteImage();
+    } else {
+      viewImage();
+    }
+  }, [viewImage, tagImage, deleteImage, deleting, tagging]);
+
+  let buttonLabel = 'View';
+  if (tagging) {
+    buttonLabel = tags.includes(taggingSelection) ? 'Untag' : 'Tag';
+  } else if (deleting) {
+    buttonLabel = 'Delete';
+  }
 
   return (
     <div
@@ -59,10 +104,12 @@ export default ({ photo: { name, num, tags }, width, height, tagging }) => {
           ))}
         </ul>
         <Button
-          className="absolute bottom-0 left-0 m-3"
-          onClick={tagging ? tagImage : viewImage}
+          className={cx(['absolute', 'bottom-0', 'left-0', 'm-3'], {
+            'bg-red-300 hover:bg-red-400': deleting,
+          })}
+          onClick={handleClick}
         >
-          {tagging ? 'Tag' : 'View'}
+          {buttonLabel}
         </Button>
       </div>
     </div>

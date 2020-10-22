@@ -3,6 +3,7 @@ type Photo {
   notes: String
   tags: [String!]!
   updated: Int!
+  deleted: Boolean!
 }
 
 type Query {
@@ -18,6 +19,10 @@ input UploadPhotoInput {
   b64data: String!
 }
 
+input DeletePhotoInput {
+  name: String!
+}
+
 input TagPhotoInput {
   name: String!
   tag: String!
@@ -31,6 +36,7 @@ input AddNotesInput {
 type Mutation {
   uploadPhoto(input: UploadPhotoInput!): Photo!
   downloadPhoto(input: DownloadPhotoInput!): Photo!
+  deletePhoto(input: DeletePhotoInput!): Photo!
   tagPhoto(input: TagPhotoInput!): Photo!
   addNotes(input: AddNotesInput!): Photo!
 }

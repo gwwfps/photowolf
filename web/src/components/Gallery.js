@@ -1,7 +1,8 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { uniq } from 'lodash';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { useHotkeys } from 'react-hotkeys-hook';
+import cx from 'classnames';
 
 import useWindowSize from '../hooks/use-window-size';
 import Tile from './Tile';
@@ -22,6 +23,8 @@ import {
   filteringDisplayedState,
   toggleTaggingSelector,
   toggleFilteringSelector,
+  deletionModeState,
+  toggleDeletionModeSelector,
 } from '../state';
 
 export default ({ photos }) => {
@@ -44,14 +47,18 @@ export default ({ photos }) => {
   const addRow = useSetRecoilState(addGalleryRowSelector);
   const removeRow = useSetRecoilState(removeGalleryRowSelector);
 
-  const width = winW / columns;
-  const height = winH / rows;
-
   const incrementCursor = useSetRecoilState(incrementGalleryCursorSelector);
   const decrementCursor = useSetRecoilState(decrementGalleryCursorSelector);
   const filterPhotos = useRecoilValue(galleryDisplayFilterSelector);
   const shownPhotos = filterPhotos(photos);
   const allTags = uniq(photos.flatMap(({ tags }) => tags)).sort();
+
+  const deleting = useRecoilValue(deletionModeState);
+  const toggleDeleting = useSetRecoilState(toggleDeletionModeSelector);
+
+  const border = deleting ? 8 : 0;
+  const width = (winW - border * 2) / columns;
+  const height = (winH - border * 2) / rows;
 
   const onWheel = useCallback(({ deltaY }) => {
     if (deltaY < 0) {
@@ -69,15 +76,32 @@ export default ({ photos }) => {
 
   useHotkeys('t', toggleTagging, {}, []);
   useHotkeys('f', toggleFiltering, {}, []);
+  useHotkeys('del', toggleDeleting, {}, []);
+
+  const className = cx(
+    [
+      'fixed',
+      'w-full',
+      'h-full',
+      'top-0',
+      'left-0',
+      'overflow-hidden',
+      'flex',
+      'flex-wrap',
+    ],
+    {
+      [`border-${border} border-red-700`]: deleting,
+    }
+  );
 
   return (
     <>
-      <div
-        className="fixed w-full h-full top-0 left-0 overflow-hidden flex flex-wrap"
-        {...{ onWheel }}
-      >
+      <div {...{ className, onWheel }}>
         {shownPhotos.map(photo => (
-          <Tile {...{ photo, width, height, tagging }} key={photo.name} />
+          <Tile
+            {...{ photo, width, height, tagging, deleting }}
+            key={photo.name}
+          />
         ))}
       </div>
       {tagging && <Tagger {...{ allTags }} />}

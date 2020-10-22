@@ -22,29 +22,20 @@ export default ({ className, ...props }) => (
 
 export const ButtonGroup = ({ options, selected, onSelect }) => (
   <div className={cx(outerClasses)}>
-    {options.map(({ key, value }, i) => {
-      const first = i === 0;
-      const last = i === options.length - 1;
-      const active = key === selected;
-      return (
-        <div
-          {...{ key }}
-          className={cx(classes, 'px-3', {
-            'pl-4': first,
-            'pr-4': last,
-            'rounded-l-md': first,
-            'rounded-r-md': last,
-            'bg-gray-600': active,
-            'hover:bg-gray-700': active,
-            'text-gray-100': active,
-          })}
-          onClick={() => {
-            onSelect(key);
-          }}
-        >
-          {value}
-        </div>
-      );
-    })}
+    {options.map(({ key, value }, i) => (
+      <div
+        {...{ key }}
+        className={cx(classes, 'px-3', {
+          'pl-4 rounded-l-md': i === 0,
+          'pr-4 rounded-r-md': i === options.length - 1,
+          'bg-gray-600 hover:bg-gray-700 text-gray-100': key === selected,
+        })}
+        onClick={() => {
+          onSelect(key);
+        }}
+      >
+        {value}
+      </div>
+    ))}
   </div>
 );

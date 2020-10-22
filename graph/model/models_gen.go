@@ -7,6 +7,10 @@ type AddNotesInput struct {
 	Notes string `json:"notes"`
 }
 
+type DeletePhotoInput struct {
+	Name string `json:"name"`
+}
+
 type DownloadPhotoInput struct {
 	URL      string  `json:"url"`
 	Referrer *string `json:"referrer"`
@@ -17,6 +21,7 @@ type Photo struct {
 	Notes   *string  `json:"notes"`
 	Tags    []string `json:"tags"`
 	Updated int      `json:"updated"`
+	Deleted bool     `json:"deleted"`
 }
 
 type TagPhotoInput struct {

@@ -45,12 +45,14 @@ type DirectiveRoot struct {
 type ComplexityRoot struct {
 	Mutation struct {
 		AddNotes      func(childComplexity int, input model.AddNotesInput) int
+		DeletePhoto   func(childComplexity int, input model.DeletePhotoInput) int
 		DownloadPhoto func(childComplexity int, input model.DownloadPhotoInput) int
 		TagPhoto      func(childComplexity int, input model.TagPhotoInput) int
 		UploadPhoto   func(childComplexity int, input model.UploadPhotoInput) int
 	}
 
 	Photo struct {
+		Deleted func(childComplexity int) int
 		Name    func(childComplexity int) int
 		Notes   func(childComplexity int) int
 		Tags    func(childComplexity int) int
@@ -65,6 +67,7 @@ type ComplexityRoot struct {
 type MutationResolver interface {
 	UploadPhoto(ctx context.Context, input model.UploadPhotoInput) (*model.Photo, error)
 	DownloadPhoto(ctx context.Context, input model.DownloadPhotoInput) (*model.Photo, error)
+	DeletePhoto(ctx context.Context, input model.DeletePhotoInput) (*model.Photo, error)
 	TagPhoto(ctx context.Context, input model.TagPhotoInput) (*model.Photo, error)
 	AddNotes(ctx context.Context, input model.AddNotesInput) (*model.Photo, error)
 }
@@ -98,6 +101,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.AddNotes(childComplexity, args["input"].(model.AddNotesInput)), true
+
+	case "Mutation.deletePhoto":
+		if e.complexity.Mutation.DeletePhoto == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deletePhoto_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeletePhoto(childComplexity, args["input"].(model.DeletePhotoInput)), true
 
 	case "Mutation.downloadPhoto":
 		if e.complexity.Mutation.DownloadPhoto == nil {
@@ -134,6 +149,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.UploadPhoto(childComplexity, args["input"].(model.UploadPhotoInput)), true
+
+	case "Photo.deleted":
+		if e.complexity.Photo.Deleted == nil {
+			break
+		}
+
+		return e.complexity.Photo.Deleted(childComplexity), true
 
 	case "Photo.name":
 		if e.complexity.Photo.Name == nil {
@@ -239,6 +261,7 @@ var sources = []*ast.Source{
   notes: String
   tags: [String!]!
   updated: Int!
+  deleted: Boolean!
 }
 
 type Query {
@@ -254,6 +277,10 @@ input UploadPhotoInput {
   b64data: String!
 }
 
+input DeletePhotoInput {
+  name: String!
+}
+
 input TagPhotoInput {
   name: String!
   tag: String!
@@ -267,6 +294,7 @@ input AddNotesInput {
 type Mutation {
   uploadPhoto(input: UploadPhotoInput!): Photo!
   downloadPhoto(input: DownloadPhotoInput!): Photo!
+  deletePhoto(input: DeletePhotoInput!): Photo!
   tagPhoto(input: TagPhotoInput!): Photo!
   addNotes(input: AddNotesInput!): Photo!
 }
@@ -285,6 +313,21 @@ func (ec *executionContext) field_Mutation_addNotes_args(ctx context.Context, ra
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNAddNotesInput2githubᚗcomᚋgwwfpsᚋphotowolfᚋgraphᚋmodelᚐAddNotesInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_deletePhoto_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.DeletePhotoInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNDeletePhotoInput2githubᚗcomᚋgwwfpsᚋphotowolfᚋgraphᚋmodelᚐDeletePhotoInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -459,6 +502,48 @@ func (ec *executionContext) _Mutation_downloadPhoto(ctx context.Context, field g
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().DownloadPhoto(rctx, args["input"].(model.DownloadPhotoInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Photo)
+	fc.Result = res
+	return ec.marshalNPhoto2ᚖgithubᚗcomᚋgwwfpsᚋphotowolfᚋgraphᚋmodelᚐPhoto(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_deletePhoto(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_deletePhoto_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeletePhoto(rctx, args["input"].(model.DeletePhotoInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -694,6 +779,41 @@ func (ec *executionContext) _Photo_updated(ctx context.Context, field graphql.Co
 	res := resTmp.(int)
 	fc.Result = res
 	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Photo_deleted(ctx context.Context, field graphql.CollectedField, obj *model.Photo) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Photo",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Deleted, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_photos(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1917,6 +2037,26 @@ func (ec *executionContext) unmarshalInputAddNotesInput(ctx context.Context, obj
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputDeletePhotoInput(ctx context.Context, obj interface{}) (model.DeletePhotoInput, error) {
+	var it model.DeletePhotoInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			it.Name, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputDownloadPhotoInput(ctx context.Context, obj interface{}) (model.DownloadPhotoInput, error) {
 	var it model.DownloadPhotoInput
 	var asMap = obj.(map[string]interface{})
@@ -2026,6 +2166,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "deletePhoto":
+			out.Values[i] = ec._Mutation_deletePhoto(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "tagPhoto":
 			out.Values[i] = ec._Mutation_tagPhoto(ctx, field)
 			if out.Values[i] == graphql.Null {
@@ -2072,6 +2217,11 @@ func (ec *executionContext) _Photo(ctx context.Context, sel ast.SelectionSet, ob
 			}
 		case "updated":
 			out.Values[i] = ec._Photo_updated(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "deleted":
+			out.Values[i] = ec._Photo_deleted(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -2393,6 +2543,11 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNDeletePhotoInput2githubᚗcomᚋgwwfpsᚋphotowolfᚋgraphᚋmodelᚐDeletePhotoInput(ctx context.Context, v interface{}) (model.DeletePhotoInput, error) {
+	res, err := ec.unmarshalInputDeletePhotoInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNDownloadPhotoInput2githubᚗcomᚋgwwfpsᚋphotowolfᚋgraphᚋmodelᚐDownloadPhotoInput(ctx context.Context, v interface{}) (model.DownloadPhotoInput, error) {

@@ -2,7 +2,7 @@
   "name": "Send to Photowolf",
   "description": "Send photos and links to Photowolf",
   "version": "0.1",
-  "permissions": ["contextMenus", "http://localhost:8080/"],
+  "permissions": ["contextMenus", "*://*/*"],
   "background": {
     "scripts": ["extension.js"]
   },

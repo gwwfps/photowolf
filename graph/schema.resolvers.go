@@ -5,7 +5,6 @@ package graph
 
 import (
 	"context"
-
 	"github.com/gwwfps/photowolf/graph/generated"
 	"github.com/gwwfps/photowolf/graph/model"
 )
@@ -24,6 +23,14 @@ func (r *mutationResolver) DownloadPhoto(ctx context.Context, input model.Downlo
 		return nil, err
 	}
 	return r.imageFileToPhoto(photo), nil
+}
+
+func (r *mutationResolver) DeletePhoto(ctx context.Context, input model.DeletePhotoInput) (*model.Photo, error) {
+	err := r.gallery.DeletePhoto(input.Name)
+	if err != nil {
+		return nil, err
+	}
+	return &model.Photo{Name: input.Name, Deleted: true}, nil
 }
 
 func (r *mutationResolver) TagPhoto(ctx context.Context, input model.TagPhotoInput) (*model.Photo, error) {
