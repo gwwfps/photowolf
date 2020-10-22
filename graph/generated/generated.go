@@ -44,10 +44,10 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Mutation struct {
-		AddNotes           func(childComplexity int, input model.AddNotesInput) int
-		DownloadPhotoInput func(childComplexity int, input model.DownloadPhotoInput) int
-		TagPhoto           func(childComplexity int, input model.TagPhotoInput) int
-		UploadPhotoInput   func(childComplexity int, input model.UploadPhotoInput) int
+		AddNotes      func(childComplexity int, input model.AddNotesInput) int
+		DownloadPhoto func(childComplexity int, input model.DownloadPhotoInput) int
+		TagPhoto      func(childComplexity int, input model.TagPhotoInput) int
+		UploadPhoto   func(childComplexity int, input model.UploadPhotoInput) int
 	}
 
 	Photo struct {
@@ -63,8 +63,8 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	UploadPhotoInput(ctx context.Context, input model.UploadPhotoInput) (*model.Photo, error)
-	DownloadPhotoInput(ctx context.Context, input model.DownloadPhotoInput) (*model.Photo, error)
+	UploadPhoto(ctx context.Context, input model.UploadPhotoInput) (*model.Photo, error)
+	DownloadPhoto(ctx context.Context, input model.DownloadPhotoInput) (*model.Photo, error)
 	TagPhoto(ctx context.Context, input model.TagPhotoInput) (*model.Photo, error)
 	AddNotes(ctx context.Context, input model.AddNotesInput) (*model.Photo, error)
 }
@@ -99,17 +99,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.AddNotes(childComplexity, args["input"].(model.AddNotesInput)), true
 
-	case "Mutation.downloadPhotoInput":
-		if e.complexity.Mutation.DownloadPhotoInput == nil {
+	case "Mutation.downloadPhoto":
+		if e.complexity.Mutation.DownloadPhoto == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_downloadPhotoInput_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_downloadPhoto_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DownloadPhotoInput(childComplexity, args["input"].(model.DownloadPhotoInput)), true
+		return e.complexity.Mutation.DownloadPhoto(childComplexity, args["input"].(model.DownloadPhotoInput)), true
 
 	case "Mutation.tagPhoto":
 		if e.complexity.Mutation.TagPhoto == nil {
@@ -123,17 +123,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.TagPhoto(childComplexity, args["input"].(model.TagPhotoInput)), true
 
-	case "Mutation.uploadPhotoInput":
-		if e.complexity.Mutation.UploadPhotoInput == nil {
+	case "Mutation.uploadPhoto":
+		if e.complexity.Mutation.UploadPhoto == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_uploadPhotoInput_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_uploadPhoto_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UploadPhotoInput(childComplexity, args["input"].(model.UploadPhotoInput)), true
+		return e.complexity.Mutation.UploadPhoto(childComplexity, args["input"].(model.UploadPhotoInput)), true
 
 	case "Photo.name":
 		if e.complexity.Photo.Name == nil {
@@ -247,6 +247,7 @@ type Query {
 
 input DownloadPhotoInput {
   url: String!
+  referrer: String
 }
 
 input UploadPhotoInput {
@@ -264,8 +265,8 @@ input AddNotesInput {
 }
 
 type Mutation {
-  uploadPhotoInput(input: UploadPhotoInput!): Photo!
-  downloadPhotoInput(input: DownloadPhotoInput!): Photo!
+  uploadPhoto(input: UploadPhotoInput!): Photo!
+  downloadPhoto(input: DownloadPhotoInput!): Photo!
   tagPhoto(input: TagPhotoInput!): Photo!
   addNotes(input: AddNotesInput!): Photo!
 }
@@ -292,7 +293,7 @@ func (ec *executionContext) field_Mutation_addNotes_args(ctx context.Context, ra
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_downloadPhotoInput_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_downloadPhoto_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 model.DownloadPhotoInput
@@ -322,7 +323,7 @@ func (ec *executionContext) field_Mutation_tagPhoto_args(ctx context.Context, ra
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_uploadPhotoInput_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_uploadPhoto_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 model.UploadPhotoInput
@@ -390,7 +391,7 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _Mutation_uploadPhotoInput(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Mutation_uploadPhoto(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -407,7 +408,7 @@ func (ec *executionContext) _Mutation_uploadPhotoInput(ctx context.Context, fiel
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Mutation_uploadPhotoInput_args(ctx, rawArgs)
+	args, err := ec.field_Mutation_uploadPhoto_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
@@ -415,7 +416,7 @@ func (ec *executionContext) _Mutation_uploadPhotoInput(ctx context.Context, fiel
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UploadPhotoInput(rctx, args["input"].(model.UploadPhotoInput))
+		return ec.resolvers.Mutation().UploadPhoto(rctx, args["input"].(model.UploadPhotoInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -432,7 +433,7 @@ func (ec *executionContext) _Mutation_uploadPhotoInput(ctx context.Context, fiel
 	return ec.marshalNPhoto2ᚖgithubᚗcomᚋgwwfpsᚋphotowolfᚋgraphᚋmodelᚐPhoto(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Mutation_downloadPhotoInput(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Mutation_downloadPhoto(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -449,7 +450,7 @@ func (ec *executionContext) _Mutation_downloadPhotoInput(ctx context.Context, fi
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Mutation_downloadPhotoInput_args(ctx, rawArgs)
+	args, err := ec.field_Mutation_downloadPhoto_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
@@ -457,7 +458,7 @@ func (ec *executionContext) _Mutation_downloadPhotoInput(ctx context.Context, fi
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DownloadPhotoInput(rctx, args["input"].(model.DownloadPhotoInput))
+		return ec.resolvers.Mutation().DownloadPhoto(rctx, args["input"].(model.DownloadPhotoInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1930,6 +1931,14 @@ func (ec *executionContext) unmarshalInputDownloadPhotoInput(ctx context.Context
 			if err != nil {
 				return it, err
 			}
+		case "referrer":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("referrer"))
+			it.Referrer, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		}
 	}
 
@@ -2007,13 +2016,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
-		case "uploadPhotoInput":
-			out.Values[i] = ec._Mutation_uploadPhotoInput(ctx, field)
+		case "uploadPhoto":
+			out.Values[i] = ec._Mutation_uploadPhoto(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "downloadPhotoInput":
-			out.Values[i] = ec._Mutation_downloadPhotoInput(ctx, field)
+		case "downloadPhoto":
+			out.Values[i] = ec._Mutation_downloadPhoto(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}

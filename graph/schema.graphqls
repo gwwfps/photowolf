@@ -11,6 +11,7 @@ type Query {
 
 input DownloadPhotoInput {
   url: String!
+  referrer: String
 }
 
 input UploadPhotoInput {
@@ -28,8 +29,8 @@ input AddNotesInput {
 }
 
 type Mutation {
-  uploadPhotoInput(input: UploadPhotoInput!): Photo!
-  downloadPhotoInput(input: DownloadPhotoInput!): Photo!
+  uploadPhoto(input: UploadPhotoInput!): Photo!
+  downloadPhoto(input: DownloadPhotoInput!): Photo!
   tagPhoto(input: TagPhotoInput!): Photo!
   addNotes(input: AddNotesInput!): Photo!
 }

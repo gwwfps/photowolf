@@ -5,11 +5,12 @@ package graph
 
 import (
 	"context"
+
 	"github.com/gwwfps/photowolf/graph/generated"
 	"github.com/gwwfps/photowolf/graph/model"
 )
 
-func (r *mutationResolver) UploadPhotoInput(ctx context.Context, input model.UploadPhotoInput) (*model.Photo, error) {
+func (r *mutationResolver) UploadPhoto(ctx context.Context, input model.UploadPhotoInput) (*model.Photo, error) {
 	photo, err := r.gallery.UploadPhoto(input.B64data)
 	if err != nil {
 		return nil, err
@@ -17,8 +18,8 @@ func (r *mutationResolver) UploadPhotoInput(ctx context.Context, input model.Upl
 	return r.imageFileToPhoto(photo), nil
 }
 
-func (r *mutationResolver) DownloadPhotoInput(ctx context.Context, input model.DownloadPhotoInput) (*model.Photo, error) {
-	photo, err := r.gallery.DownloadPhoto(input.URL)
+func (r *mutationResolver) DownloadPhoto(ctx context.Context, input model.DownloadPhotoInput) (*model.Photo, error) {
+	photo, err := r.gallery.DownloadPhoto(input.URL, input.Referrer)
 	if err != nil {
 		return nil, err
 	}

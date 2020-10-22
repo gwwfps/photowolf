@@ -8,7 +8,8 @@ type AddNotesInput struct {
 }
 
 type DownloadPhotoInput struct {
-	URL string `json:"url"`
+	URL      string  `json:"url"`
+	Referrer *string `json:"referrer"`
 }
 
 type Photo struct {

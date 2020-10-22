@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 )
 
@@ -84,8 +83,16 @@ func (g *Gallery) saveFile(data []byte) (*ImageFile, error) {
 	}, nil
 }
 
-func (g *Gallery) DownloadPhoto(url string) (*ImageFile, error) {
-	resp, err := http.Get(url)
+func (g *Gallery) DownloadPhoto(url string, referrer *string) (*ImageFile, error) {
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return nil, errors.WithMessage(err, "invalid download request")
+	}
+	if referrer != nil {
+		req.Header.Set("Referrer", *referrer)
+	}
+	client := &http.Client{}
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, errors.WithMessage(err, "cannot download file")
 	}
@@ -100,9 +107,7 @@ func (g *Gallery) DownloadPhoto(url string) (*ImageFile, error) {
 }
 
 func (g *Gallery) UploadPhoto(b64 string) (*ImageFile, error) {
-	decoder := base64.NewDecoder(base64.StdEncoding, strings.NewReader(b64))
-	var data []byte
-	_, err := decoder.Read(data)
+	data, err := base64.StdEncoding.DecodeString(b64)
 	if err != nil {
 		return nil, errors.WithMessage(err, "cannot decode image data")
 	}
