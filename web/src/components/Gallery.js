@@ -17,8 +17,9 @@ import {
   removeGalleryRowSelector,
   incrementGalleryCursorSelector,
   decrementGalleryCursorSelector,
-  galleryPhotoCount,
+  galleryFilteredPhotoCount,
   galleryDisplayFilterSelector,
+  galleryDisplayPageSelector,
   taggingDisplayedState,
   filteringDisplayedState,
   toggleTaggingSelector,
@@ -35,11 +36,6 @@ export default ({ photos }) => {
 
   const [winW, winH] = useWindowSize();
 
-  const setPhotoCount = useSetRecoilState(galleryPhotoCount);
-  useEffect(() => {
-    setPhotoCount(photos.length);
-  }, [photos.length]);
-
   const columns = useRecoilValue(galleryColumnsState);
   const rows = useRecoilValue(galleryRowsState);
   const addColumn = useSetRecoilState(addGalleryColumnSelector);
@@ -49,8 +45,16 @@ export default ({ photos }) => {
 
   const incrementCursor = useSetRecoilState(incrementGalleryCursorSelector);
   const decrementCursor = useSetRecoilState(decrementGalleryCursorSelector);
+
   const filterPhotos = useRecoilValue(galleryDisplayFilterSelector);
-  const shownPhotos = filterPhotos(photos);
+  const filteredPhotos = filterPhotos(photos);
+  const setPhotoCount = useSetRecoilState(galleryFilteredPhotoCount);
+  useEffect(() => {
+    setPhotoCount(filteredPhotos.length);
+  }, [filteredPhotos.length]);
+  const pagePhotos = useRecoilValue(galleryDisplayPageSelector);
+  const shownPhotos = pagePhotos(filteredPhotos);
+
   const allTags = uniq(photos.flatMap(({ tags }) => tags)).sort();
 
   const deleting = useRecoilValue(deletionModeState);
@@ -88,6 +92,7 @@ export default ({ photos }) => {
       'overflow-hidden',
       'flex',
       'flex-wrap',
+      'place-content-start',
     ],
     {
       [`border-${border} border-red-700`]: deleting,

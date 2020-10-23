@@ -1,16 +1,19 @@
-import React, { useCallback } from 'react';
-import { useRecoilState } from 'recoil';
+import React from 'react';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 
 import Tag from './Tag';
 import Controls from './Controls';
 import { ButtonGroup } from './Button';
 import {
-  addFilterTagSelector,
   filterMethodSelector,
   FILTER_METHOD_ONE,
   FILTER_METHOD_AND,
   FILTER_METHOD_OR,
   FILTER_METHOD_ALL,
+  positiveFilterTagsState,
+  negativeFilterTagsState,
+  togglePositiveFilterTagSelector,
+  toggleNegativeFilterTagSelector,
 } from '../state';
 
 const options = [
@@ -21,7 +24,14 @@ const options = [
 ];
 
 export default ({ allTags }) => {
-  const [filterTags, addFilterTag] = useRecoilState(addFilterTagSelector);
+  const positiveFilterTags = useRecoilValue(positiveFilterTagsState);
+  const negativeFilterTags = useRecoilValue(negativeFilterTagsState);
+  const togglePositiveFilterTag = useSetRecoilState(
+    togglePositiveFilterTagSelector
+  );
+  const toggleNegativeFilterTag = useSetRecoilState(
+    toggleNegativeFilterTagSelector
+  );
   const [filterMethod, setFilterMethod] = useRecoilState(filterMethodSelector);
 
   return (
@@ -38,8 +48,10 @@ export default ({ allTags }) => {
           <Tag
             key={tag}
             {...{ tag }}
-            onClick={addFilterTag}
-            underline={filterTags.includes(tag)}
+            onClick={togglePositiveFilterTag}
+            onRightClick={toggleNegativeFilterTag}
+            selected={positiveFilterTags.includes(tag)}
+            negated={negativeFilterTags.includes(tag)}
           />
         ))}
       </Controls>

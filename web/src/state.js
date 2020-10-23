@@ -1,5 +1,5 @@
 import { atom, selector, useRecoilTransactionObserver_UNSTABLE } from 'recoil';
-import { xor, reverse, sortBy, intersection } from 'lodash';
+import { xor, without, reverse, sortBy, intersection } from 'lodash';
 
 const persistenceMapping = {};
 
@@ -25,8 +25,8 @@ export const zoomFactorState = persistentAtom({
   default: 0.5,
 });
 
-export const galleryPhotoCount = atom({
-  key: 'galleryPhotoCount',
+export const galleryFilteredPhotoCount = atom({
+  key: 'galleryFilteredPhotoCount',
   default: 0,
 });
 
@@ -38,23 +38,25 @@ export const galleryCursorState = persistentAtom({
 export const maxGalleryCursorSelector = selector({
   key: 'maxGalleryCursorSelector',
   get: ({ get }) =>
-    Math.ceil(get(galleryPhotoCount) / get(galleryColumnsState)) -
-    get(galleryRowsState),
+    Math.ceil(get(galleryFilteredPhotoCount) / get(galleryColumnsState)) - 1,
 });
 
 export const galleryCursorSelector = selector({
   key: 'galleryCursorSelector',
   get: ({ get }) =>
     Math.min(get(galleryCursorState), get(maxGalleryCursorSelector)),
+  set: ({ set, get }, cursor) =>
+    set(
+      galleryCursorState,
+      Math.max(0, Math.min(cursor, get(maxGalleryCursorSelector)))
+    ),
 });
 
 export const incrementGalleryCursorSelector = selector({
   key: 'incrementGalleryCursorSelector',
   set: ({ get, set }) => {
     const cursor = get(galleryCursorState);
-    if (cursor < get(maxGalleryCursorSelector)) {
-      set(galleryCursorState, cursor + 1);
-    }
+    set(galleryCursorSelector, cursor + 1);
   },
 });
 
@@ -62,9 +64,7 @@ export const decrementGalleryCursorSelector = selector({
   key: 'decrementGalleryCursorSelector',
   set: ({ get, set }) => {
     const cursor = get(galleryCursorState);
-    if (cursor > 0) {
-      set(galleryCursorState, cursor - 1);
-    }
+    set(galleryCursorSelector, cursor - 1);
   },
 });
 
@@ -121,12 +121,9 @@ export const removeGalleryColumnSelector = selector({
 export const galleryDisplayFilterSelector = selector({
   key: 'galleryDisplayFilterSelector',
   get: ({ get }) => photos => {
-    const cursor = get(galleryCursorSelector);
-    const rows = get(galleryRowsState);
-    const columns = get(galleryColumnsState);
-
     const filterMethod = get(filterMethodState);
-    const filterTags = get(filterTagsState);
+    const positiveTags = get(positiveFilterTagsState);
+    const negativeTags = get(negativeFilterTagsState);
 
     return reverse(
       sortBy(
@@ -136,18 +133,33 @@ export const galleryDisplayFilterSelector = selector({
         ...photo,
         num: i + 1,
       }))
-    )
-      .filter(({ tags }) => {
-        if (filterMethod === FILTER_METHOD_ALL || !filterTags.length) {
-          return true;
-        }
-        const overlap = intersection(filterTags, tags).length;
-        if (filterMethod === FILTER_METHOD_OR) {
-          return !!overlap;
-        }
-        return overlap === filterTags.length;
-      })
-      .slice(cursor * columns, (cursor + rows) * columns);
+    ).filter(({ tags }) => {
+      if (!positiveTags.length && !negativeTags.length) {
+        return true;
+      }
+      const positiveOverlap = intersection(positiveTags, tags).length;
+      const negativeOverlap = intersection(negativeTags, tags).length;
+      if (negativeOverlap) {
+        return false;
+      }
+      if (filterMethod === FILTER_METHOD_ALL) {
+        return true;
+      }
+      if (filterMethod === FILTER_METHOD_OR) {
+        return !!positiveOverlap;
+      }
+      return positiveOverlap === positiveTags.length;
+    });
+  },
+});
+
+export const galleryDisplayPageSelector = selector({
+  key: 'galleryDisplayPageSelector',
+  get: ({ get }) => photos => {
+    const cursor = get(galleryCursorSelector);
+    const rows = get(galleryRowsState);
+    const columns = get(galleryColumnsState);
+    return photos.slice(cursor * columns, (cursor + rows) * columns);
   },
 });
 
@@ -188,25 +200,46 @@ export const toggleFilteringSelector = selector({
   },
 });
 
-export const filterTagsState = persistentAtom({
-  key: 'filterTags',
+export const positiveFilterTagsState = persistentAtom({
+  key: 'positiveFilterTags',
   default: [],
 });
 
-export const addFilterTagSelector = selector({
-  key: 'addFilterTagSelector',
-  get: ({ get }) => get(filterTagsState),
-  set: ({ get, set }, tag) => {
-    const filterTags = get(filterTagsState);
+export const togglePositiveFilterTagSelector = selector({
+  key: 'togglePositiveFilterTagSelector',
+  set: ({ set, get }, tag) => {
     const filterMethod = get(filterMethodState);
     if (filterMethod === FILTER_METHOD_ALL) {
       set(filterMethodState, FILTER_METHOD_ONE);
-      set(filterTagsState, [tag]);
+      set(positiveFilterTagsState, [tag]);
     } else if (filterMethod === FILTER_METHOD_ONE) {
-      set(filterTagsState, filterTags.includes(tag) ? [] : [tag]);
+      set(
+        positiveFilterTagsState,
+        intersection(xor(get(positiveFilterTagsState), [tag]), [tag])
+      );
     } else {
-      set(filterTagsState, xor(filterTags, [tag]).sort());
+      set(
+        positiveFilterTagsState,
+        xor(get(positiveFilterTagsState), [tag]).sort()
+      );
     }
+    set(negativeFilterTagsState, without(get(negativeFilterTagsState), tag));
+  },
+});
+
+export const negativeFilterTagsState = persistentAtom({
+  key: 'negativeFilterTags',
+  default: [],
+});
+
+export const toggleNegativeFilterTagSelector = selector({
+  key: 'toggleNegativeFilterTagSelector',
+  set: ({ set, get }, tag) => {
+    set(
+      negativeFilterTagsState,
+      xor(get(negativeFilterTagsState), [tag]).sort()
+    );
+    set(positiveFilterTagsState, without(get(positiveFilterTagsState), tag));
   },
 });
 
@@ -226,12 +259,13 @@ export const filterMethodSelector = selector({
   set: ({ get, set }, method) => {
     set(filterMethodState, method);
     if (method === FILTER_METHOD_ALL) {
-      set(filterTagsState, []);
+      set(positiveFilterTagsState, []);
+      set(negativeFilterTagsState, []);
     }
     if (method === FILTER_METHOD_ONE) {
-      const filterTags = get(filterTagsState);
-      if (filterTags.length) {
-        set(filterTagsState, [filterTags[0]]);
+      const positiveFilterTags = get(positiveFilterTagsState);
+      if (positiveFilterTags.length) {
+        set(positiveFilterTagsState, [positiveFilterTags[0]]);
       }
     }
   },

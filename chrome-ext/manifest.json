@@ -2,9 +2,13 @@
   "name": "Send to Photowolf",
   "description": "Send photos and links to Photowolf",
   "version": "0.1",
-  "permissions": ["contextMenus", "*://*/*"],
+  "permissions": ["contextMenus", "*://*/*", "storage"],
   "background": {
     "scripts": ["extension.js"]
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": false
   },
   "manifest_version": 2
 }

@@ -3,7 +3,7 @@ import cx from 'classnames';
 
 import hashColor from '../utils/hash-color';
 
-const Inner = ({ className, text, underline }) => {
+const Inner = ({ className, text, selected, negated }) => {
   const color = hashColor(text);
   return (
     <div
@@ -17,7 +17,8 @@ const Inner = ({ className, text, underline }) => {
           `bg-${color}-200`,
         ],
         {
-          [`border-b-4 border-${color}-300`]: underline,
+          [`border-b-4 border-${color}-300`]: selected,
+          'border-t-4 border-gray-500 line-through': negated,
         },
         className
       )}
@@ -27,16 +28,24 @@ const Inner = ({ className, text, underline }) => {
   );
 };
 
-export default ({ tag, underline, onClick }) => {
+export default ({ tag, selected, negated, onClick, onRightClick }) => {
   let inner;
   if (tag.includes(':')) {
     const [kind, val] = tag.split(':');
     inner = [
-      <Inner className="rounded-l pr-1" text={kind} {...{ underline }} />,
-      <Inner className="rounded-r pl-1" text={val} {...{ underline }} />,
+      <Inner
+        className="rounded-l pr-1"
+        text={kind}
+        {...{ selected, negated }}
+      />,
+      <Inner
+        className="rounded-r pl-1"
+        text={val}
+        {...{ selected, negated }}
+      />,
     ];
   } else {
-    inner = <Inner className="rounded" text={tag} {...{ underline }} />;
+    inner = <Inner className="rounded" text={tag} {...{ selected, negated }} />;
   }
 
   const handleClick = useCallback(() => {
@@ -45,9 +54,23 @@ export default ({ tag, underline, onClick }) => {
     }
     onClick(tag);
   }, [onClick, tag]);
+  const handleRightClick = useCallback(
+    e => {
+      if (!onRightClick) {
+        return;
+      }
+      e.preventDefault();
+      onRightClick(tag);
+    },
+    [onRightClick, tag]
+  );
 
   return (
-    <div className={cx('inline-flex', 'm-1', 'text-xs')} onClick={handleClick}>
+    <div
+      className={cx('inline-flex', 'm-1', 'text-xs')}
+      onClick={handleClick}
+      onContextMenu={handleRightClick}
+    >
       {inner}
     </div>
   );

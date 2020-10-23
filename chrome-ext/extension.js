@@ -1,24 +1,32 @@
-const doGqlReq = (query, variables) =>
-  fetch("http://localhost:8080/graphql", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
+const doGqlReq = (query, variables) => {
+  chrome.storage.sync.get(
+    {
+      photowolfUrl: "http://localhost:8080/graphql",
     },
-    body: JSON.stringify({
-      query,
-      variables,
-    }),
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.errors) {
-        console.error("GQL errors:", data.errors);
-      }
-      console.log("Query success:", data);
-    })
-    .catch((error) => {
-      console.error("Query error:", error);
-    });
+    ({ photowolfUrl }) => {
+      fetch(photowolfUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          query,
+          variables,
+        }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.errors) {
+            console.error("GQL errors:", data.errors);
+          }
+          console.log("Query success:", data);
+        })
+        .catch((error) => {
+          console.error("Query error:", error);
+        });
+    }
+  );
+};
 
 const fetchAsBase64 = (url, cb) => {
   fetch(url)
