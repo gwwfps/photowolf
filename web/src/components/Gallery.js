@@ -109,8 +109,8 @@ export default ({ photos }) => {
           />
         ))}
       </div>
-      {tagging && <Tagger {...{ allTags }} />}
-      {filtering && <Filters {...{ allTags }} />}
+      {tagging && <Tagger {...{ allTags, photos }} />}
+      {filtering && <Filters {...{ allTags, photos }} />}
     </>
   );
 };

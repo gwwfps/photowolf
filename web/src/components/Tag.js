@@ -3,8 +3,8 @@ import cx from 'classnames';
 
 import hashColor from '../utils/hash-color';
 
-const Inner = ({ className, text, selected, negated }) => {
-  const color = hashColor(text);
+const Inner = ({ text, selected, negated, color }) => {
+  const c = color || hashColor(text);
   return (
     <div
       className={cx(
@@ -13,14 +13,13 @@ const Inner = ({ className, text, selected, negated }) => {
           'select-none',
           'py-1',
           'px-2',
-          `text-${color}-700`,
-          `bg-${color}-200`,
+          `text-${c}-700`,
+          `bg-${c}-200`,
         ],
         {
-          [`border-b-4 border-${color}-300`]: selected,
+          [`border-b-4 border-${c}-300`]: selected,
           'border-t-4 border-gray-500 line-through': negated,
-        },
-        className
+        }
       )}
     >
       {text}
@@ -28,24 +27,19 @@ const Inner = ({ className, text, selected, negated }) => {
   );
 };
 
-export default ({ tag, selected, negated, onClick, onRightClick }) => {
+export default ({ tag, selected, negated, count, onClick, onRightClick }) => {
   let inner;
   if (tag.includes(':')) {
     const [kind, val] = tag.split(':');
     inner = [
-      <Inner
-        className="rounded-l pr-1"
-        text={kind}
-        {...{ selected, negated }}
-      />,
-      <Inner
-        className="rounded-r pl-1"
-        text={val}
-        {...{ selected, negated }}
-      />,
+      { key: 'kind', text: kind },
+      { key: 'val', text: val },
     ];
   } else {
-    inner = <Inner className="rounded" text={tag} {...{ selected, negated }} />;
+    inner = [{ key: 'tag', text: tag }];
+  }
+  if (count) {
+    inner.push({ key: 'count', text: `${count}`, color: 'gray' });
   }
 
   const handleClick = useCallback(() => {
@@ -71,7 +65,9 @@ export default ({ tag, selected, negated, onClick, onRightClick }) => {
       onClick={handleClick}
       onContextMenu={handleRightClick}
     >
-      {inner}
+      {inner.map(props => (
+        <Inner {...{ ...props, selected, negated }} />
+      ))}
     </div>
   );
 };

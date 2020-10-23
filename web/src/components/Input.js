@@ -4,6 +4,7 @@ import cx from 'classnames';
 export default ({ className, color = 'gray', ...props }) => (
   <input
     className={cx(
+      'h-8',
       `bg-${color}-200`,
       'appearance-none',
       'border-2',

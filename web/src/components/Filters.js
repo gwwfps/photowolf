@@ -15,6 +15,7 @@ import {
   togglePositiveFilterTagSelector,
   toggleNegativeFilterTagSelector,
 } from '../state';
+import groupTags from '../utils/group-tags';
 
 const options = [
   { key: FILTER_METHOD_ALL, value: 'All' },
@@ -23,7 +24,7 @@ const options = [
   { key: FILTER_METHOD_OR, value: 'Or' },
 ];
 
-export default ({ allTags }) => {
+export default ({ allTags, photos }) => {
   const positiveFilterTags = useRecoilValue(positiveFilterTagsState);
   const negativeFilterTags = useRecoilValue(negativeFilterTagsState);
   const togglePositiveFilterTag = useSetRecoilState(
@@ -44,16 +45,23 @@ export default ({ allTags }) => {
             onSelect={setFilterMethod}
           />
         </div>
-        {allTags.map(tag => (
-          <Tag
-            key={tag}
-            {...{ tag }}
-            onClick={togglePositiveFilterTag}
-            onRightClick={toggleNegativeFilterTag}
-            selected={positiveFilterTags.includes(tag)}
-            negated={negativeFilterTags.includes(tag)}
-          />
-        ))}
+        <div className="w-full">
+          {groupTags(allTags).map(({ kind, tags }) => (
+            <div key={kind}>
+              {tags.map(tag => (
+                <Tag
+                  key={tag}
+                  {...{ tag }}
+                  onClick={togglePositiveFilterTag}
+                  onRightClick={toggleNegativeFilterTag}
+                  selected={positiveFilterTags.includes(tag)}
+                  negated={negativeFilterTags.includes(tag)}
+                  count={photos.filter(({ tags }) => tags.includes(tag)).length}
+                />
+              ))}
+            </div>
+          ))}
+        </div>
       </Controls>
     </div>
   );
