@@ -22,7 +22,7 @@ type ImageTags struct {
 }
 
 func New(dbDir string) *Tagger {
-	return &Tagger{dbDir: dbDir}
+	return &Tagger{dbDir: dbDir, images: make(map[string]ImageTags)}
 }
 
 func (t *Tagger) Start() {
