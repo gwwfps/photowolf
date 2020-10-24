@@ -45,18 +45,25 @@ func (t *Tagger) TagImage(img, tag string) ImageTags {
 	tag = strings.ToLower(tag)
 	imageTags := t.images[img]
 
+	kind := strings.Split(tag, ":")[0]
 	index := -1
+	exact := false
 	for i, tg := range imageTags.Tags {
-		if tg == tag {
+		exact = tg == tag
+		if exact || strings.HasPrefix(tg, kind+":") {
 			index = i
 			break
 		}
 	}
-	if index == -1 {
-		imageTags.Tags = append(imageTags.Tags, tag)
-	} else {
+
+	if index != -1 {
 		imageTags.Tags = append(imageTags.Tags[:index], imageTags.Tags[index+1:]...)
 	}
+
+	if index == -1 || !exact {
+		imageTags.Tags = append(imageTags.Tags, tag)
+	}
+
 	t.images[img] = imageTags
 
 	return imageTags

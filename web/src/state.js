@@ -20,6 +20,11 @@ export const magActiveState = persistentAtom({
   default: false,
 });
 
+export const rightModeState = persistentAtom({
+  key: 'rightMode',
+  default: false,
+});
+
 export const zoomFactorState = persistentAtom({
   key: 'zoomFactor',
   default: 0.5,

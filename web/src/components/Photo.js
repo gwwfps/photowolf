@@ -6,7 +6,7 @@ import { useRecoilState } from 'recoil';
 import cx from 'classnames';
 
 import useWindowSize from '../hooks/use-window-size';
-import { magActiveState, zoomFactorState } from '../state';
+import { magActiveState, rightModeState, zoomFactorState } from '../state';
 
 export default ({ photo: { name } }) => {
   const url = `/photos/${name}`;
@@ -28,10 +28,12 @@ export default ({ photo: { name } }) => {
 
   const [magActive, setMagActive] = useRecoilState(magActiveState);
   const [hidden, setHidden] = useState(false);
+  const [rightMode, setRightMode] = useRecoilState(rightModeState);
 
   useHotkeys('g', () => history.push('/'), {}, [history]);
   useHotkeys('m', () => setMagActive(!magActive), {}, [magActive]);
   useHotkeys('h', () => setHidden(!hidden), {}, [hidden]);
+  useHotkeys('r', () => setRightMode(!rightMode), {}, [rightMode]);
 
   const imgAttrs = {
     alt: name,
@@ -71,11 +73,13 @@ export default ({ photo: { name } }) => {
   return (
     <div
       {...{ onWheel }}
-      className="fixed w-full h-full top-0 left-0 bg-no-repeat bg-black"
+      className="fixed w-full h-full top-0 left-0 bg-no-repeat"
     >
       <div
-        className={cx('flex justify-center', {
+        className={cx('flex', {
           'opacity-0': hidden,
+          'justify-center': !rightMode,
+          'justify-end': rightMode,
         })}
       >
         {magActive && w * 2 < winW ? <img {...imgAttrs} /> : false}
