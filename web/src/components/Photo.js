@@ -1,30 +1,23 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Magnifier from 'react-magnifier';
-import ColorThief from 'colorthief';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useHistory } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
+import cx from 'classnames';
 
 import useWindowSize from '../hooks/use-window-size';
 import { magActiveState, zoomFactorState } from '../state';
-
-const colorThief = new ColorThief();
 
 export default ({ photo: { name } }) => {
   const url = `/photos/${name}`;
   const history = useHistory();
 
   const [winW, winH] = useWindowSize();
-  const [[imgW, imgH, backgroundColor], setImgAttrs] = useState([
-    0,
-    0,
-    '#f0f0f0',
-  ]);
+  const [[imgW, imgH], setImgAttrs] = useState([0, 0]);
   useEffect(() => {
     let img = new Image();
     img.onload = () => {
-      const [r, g, b] = colorThief.getColor(img, 50);
-      setImgAttrs([img.width, img.height, `rgb(${r}, ${g}, ${b})`]);
+      setImgAttrs([img.width, img.height]);
     };
     img.src = url;
   }, [url]);
@@ -33,23 +26,12 @@ export default ({ photo: { name } }) => {
   const w = imgW * scale;
   const h = imgH * scale;
 
-  useHotkeys(
-    'g',
-    () => {
-      history.push('/');
-    },
-    {},
-    [history]
-  );
   const [magActive, setMagActive] = useRecoilState(magActiveState);
-  useHotkeys(
-    'm',
-    () => {
-      setMagActive(!magActive);
-    },
-    {},
-    [magActive]
-  );
+  const [hidden, setHidden] = useState(false);
+
+  useHotkeys('g', () => history.push('/'), {}, [history]);
+  useHotkeys('m', () => setMagActive(!magActive), {}, [magActive]);
+  useHotkeys('h', () => setHidden(!hidden), {}, [hidden]);
 
   const imgAttrs = {
     alt: name,
@@ -89,12 +71,13 @@ export default ({ photo: { name } }) => {
   return (
     <div
       {...{ onWheel }}
-      className="fixed w-full h-full top-0 left-0 bg-no-repeat"
-      style={{
-        backgroundColor,
-      }}
+      className="fixed w-full h-full top-0 left-0 bg-no-repeat bg-black"
     >
-      <div className="flex justify-center">
+      <div
+        className={cx('flex justify-center', {
+          'opacity-0': hidden,
+        })}
+      >
         {magActive && w * 2 < winW ? <img {...imgAttrs} /> : false}
         {magActive ? <Magnifier {...magnifierAttrs} /> : <img {...imgAttrs} />}
       </div>
