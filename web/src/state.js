@@ -20,9 +20,22 @@ export const magActiveState = persistentAtom({
   default: false,
 });
 
-export const rightModeState = persistentAtom({
-  key: 'rightMode',
-  default: false,
+const JUSTIFY_POSITIONS = ['center', 'end', 'start'];
+
+export const justifyPositionState = persistentAtom({
+  key: 'justifyPosition',
+  default: JUSTIFY_POSITIONS[0],
+});
+
+export const cycleJustifyPositionSelector = selector({
+  key: 'cycleJustifyPositionSelector',
+  set: ({ set, get }) => {
+    const idx = JUSTIFY_POSITIONS.indexOf(get(justifyPositionState));
+    set(
+      justifyPositionState,
+      JUSTIFY_POSITIONS[(idx + 1) % JUSTIFY_POSITIONS.length]
+    );
+  },
 });
 
 export const zoomFactorState = persistentAtom({

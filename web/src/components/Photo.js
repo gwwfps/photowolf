@@ -2,11 +2,16 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Magnifier from 'react-magnifier';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useHistory } from 'react-router-dom';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import cx from 'classnames';
 
 import useWindowSize from '../hooks/use-window-size';
-import { magActiveState, rightModeState, zoomFactorState } from '../state';
+import {
+  magActiveState,
+  zoomFactorState,
+  justifyPositionState,
+  cycleJustifyPositionSelector,
+} from '../state';
 
 export default ({ photo: { name } }) => {
   const url = `/photos/${name}`;
@@ -28,12 +33,13 @@ export default ({ photo: { name } }) => {
 
   const [magActive, setMagActive] = useRecoilState(magActiveState);
   const [hidden, setHidden] = useState(false);
-  const [rightMode, setRightMode] = useRecoilState(rightModeState);
+  const justifyPosition = useRecoilValue(justifyPositionState);
+  const cycleJustifyPosition = useSetRecoilState(cycleJustifyPositionSelector);
 
   useHotkeys('g', () => history.push('/'), {}, [history]);
   useHotkeys('m', () => setMagActive(!magActive), {}, [magActive]);
   useHotkeys('h', () => setHidden(!hidden), {}, [hidden]);
-  useHotkeys('r', () => setRightMode(!rightMode), {}, [rightMode]);
+  useHotkeys('r', cycleJustifyPosition, {}, []);
 
   const imgAttrs = {
     alt: name,
@@ -76,10 +82,8 @@ export default ({ photo: { name } }) => {
       className="fixed w-full h-full top-0 left-0 bg-no-repeat"
     >
       <div
-        className={cx('flex', {
+        className={cx('flex', `justify-${justifyPosition}`, {
           'opacity-0': hidden,
-          'justify-center': !rightMode,
-          'justify-end': rightMode,
         })}
       >
         {magActive && w * 2 < winW ? <img {...imgAttrs} /> : false}
