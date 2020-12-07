@@ -11,6 +11,8 @@ import {
   zoomFactorState,
   justifyPositionState,
   cycleJustifyPositionSelector,
+  flippedState,
+  toggleFlippedSelector,
 } from '../state';
 
 export default ({ photo: { name } }) => {
@@ -35,11 +37,14 @@ export default ({ photo: { name } }) => {
   const [hidden, setHidden] = useState(false);
   const justifyPosition = useRecoilValue(justifyPositionState);
   const cycleJustifyPosition = useSetRecoilState(cycleJustifyPositionSelector);
+  const flipped = useRecoilValue(flippedState);
+  const toggleFlipped = useSetRecoilState(toggleFlippedSelector);
 
   useHotkeys('g', () => history.push('/'), {}, [history]);
   useHotkeys('m', () => setMagActive(!magActive), {}, [magActive]);
   useHotkeys('h', () => setHidden(!hidden), {}, [hidden]);
   useHotkeys('r', cycleJustifyPosition, {}, []);
+  useHotkeys('f', toggleFlipped, {}, []);
 
   const imgAttrs = {
     alt: name,
@@ -84,6 +89,7 @@ export default ({ photo: { name } }) => {
       <div
         className={cx('flex', `justify-${justifyPosition}`, {
           'opacity-0': hidden,
+          flipped: flipped,
         })}
       >
         {magActive && w * 2 < winW ? <img {...imgAttrs} /> : false}

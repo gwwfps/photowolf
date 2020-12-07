@@ -3,13 +3,13 @@ import { debounce } from 'lodash';
 
 export default function () {
   const [windowSize, setWindowSize] = useState([
-    window.innerWidth,
-    window.innerHeight,
+    document.documentElement.clientWidth,
+    document.documentElement.clientHeight,
   ]);
 
   useEffect(() => {
     const onResize = debounce(() =>
-      setWindowSize([window.innerWidth, window.innerHeight])
+      setWindowSize([document.documentElement.clientWidth, document.documentElement.clientHeight])
     );
     window.addEventListener('resize', onResize, 50);
     return () => window.removeEventListener('resize', onResize);

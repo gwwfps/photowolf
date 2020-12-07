@@ -2,6 +2,7 @@ import React, { useCallback, useEffect } from 'react';
 import { uniq } from 'lodash';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { useHotkeys } from 'react-hotkeys-hook';
+import { useDrag } from 'react-use-gesture';
 import cx from 'classnames';
 
 import useWindowSize from '../hooks/use-window-size';
@@ -64,14 +65,16 @@ export default ({ photos }) => {
   const width = (winW - border * 2) / columns;
   const height = (winH - border * 2) / rows;
 
-  const onWheel = useCallback(({ deltaY }) => {
-    if (deltaY < 0) {
+  const changePage = y => {
+    if (y < 0) {
       decrementCursor();
     }
-    if (deltaY > 0) {
+    if (y > 0) {
       incrementCursor();
     }
-  }, []);
+  };
+  const onWheel = useCallback(({ deltaY }) => changePage(deltaY), []);
+  useDrag(({ swipe: [, swipeY] }) => swipeY);
 
   useHotkeys('=', addColumn, {}, []);
   useHotkeys('-', removeColumn, {}, []);
@@ -93,6 +96,7 @@ export default ({ photos }) => {
       'flex',
       'flex-wrap',
       'place-content-start',
+      'no-touch',
     ],
     {
       [`border-${border} border-red-700`]: deleting,

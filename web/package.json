@@ -27,7 +27,8 @@
     "lodash": "^4.17.20",
     "react-magnifier": "^3.0.4",
     "react-hotkeys-hook": "^2.3.1",
-    "recoil": "^0.0.13"
+    "recoil": "^0.0.13",
+    "react-use-gesture": "^8.0.1"
   },
   "scripts": {
     "build": "rimraf dist && rollup -c",

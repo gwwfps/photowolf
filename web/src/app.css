@@ -13,3 +13,11 @@ body {
 .tile-num {
   text-shadow: 0 4px 8px rgba(0, 0, 0, 0.75), 0 2px 4px rgba(0, 0, 0, 0.5);
 }
+
+.no-touch {
+  touch-action: none;
+}
+
+.flipped {
+  transform: scaleX(-1);
+}

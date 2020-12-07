@@ -38,6 +38,18 @@ export const cycleJustifyPositionSelector = selector({
   },
 });
 
+export const flippedState = persistentAtom({
+  key: 'flipped',
+  default: false,
+});
+
+export const toggleFlippedSelector = selector({
+  key: 'toggleFlippedSelector',
+  set: ({ set, get }) => {
+    set(flippedState, !get(flippedState));
+  },
+});
+
 export const zoomFactorState = persistentAtom({
   key: 'zoomFactor',
   default: 0.5,
